@@ -361,7 +361,7 @@ class FencingEnemy(Enemy):
                  size: int,
                  color: str,):
         super().__init__(game, size, color)
-        self.speed = 10
+        self.speed = 5
         self.spawnOpt = None
 
     def create(self) -> None:
@@ -621,14 +621,14 @@ class EnemyGenerator:
         Create a new enemy, possibly based on the game level
         """
         new_enemy = RandomWalkEnemy(self.__game, 20, "blue")
-        new_enemy.x = random.randint(0, 700)
-        new_enemy.y = random.randint(0, 400)
+        new_enemy.x = random.randint(0, 600)
+        new_enemy.y = random.randint(0, 500)
         self.game.add_element(new_enemy)
 
     def create_chasing(self):
         new_enemy = ChasingEnemy(self.__game, 20, "green")
-        new_enemy.x = random.randint(75,600)
-        new_enemy.y = random.randint(0,500)
+        new_enemy.x = random.randint(0, 600)
+        new_enemy.y = random.randint(0, 500)
         self.__game.add_enemy(new_enemy)
 
     def create_fencing(self):
@@ -639,14 +639,14 @@ class EnemyGenerator:
 
     def create_centipede(self):
         new_enemy = CentipedeEnemy(self.__game, 10, 'yellow')
-        new_enemy.x = random.randint(75,600)
-        new_enemy.y = random.randint(0,500)
+        new_enemy.x = random.randint(0, 600)
+        new_enemy.y = random.randint(0, 500)
         self.__game.add_enemy(new_enemy)
 
     def create_ShootingEnemy(self):
         new_enemy = ShootingEnemy(self.__game, 10, 'brown', 10)
-        new_enemy.x = random.randint(0, 700)
-        new_enemy.y = random.randint(0, 400)
+        new_enemy.x = random.randint(0, 600)
+        new_enemy.y = random.randint(0, 500)
         self.__game.add_enemy(new_enemy)
 
 
