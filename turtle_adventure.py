@@ -6,9 +6,11 @@ from turtle import RawTurtle
 from gamelib import Game, GameElement
 import math
 import random
+import time
 
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 500
+
 
 class TurtleGameElement(GameElement):
     """
@@ -520,6 +522,57 @@ class CentipedeEnemy(Enemy):
         for segment in self.body_segments:
             self.canvas.delete(segment)
 
+
+class ShootingEnemy(Enemy):
+    def __init__(self, game: "TurtleAdventureGame", size: int, color: str, ball_speed: int):
+        super().__init__(game, size, color)
+        self.ball_speed = ball_speed
+        self.__ball = None
+        self.last_shot_time = time.time()
+
+    def create(self) -> None:
+        self.__id = self.canvas.create_oval(0, 0, self.size/2, self.size/2, fill=self.color)
+
+    def update(self) -> None:
+        # Shoot a ball towards the player's location if it's been at least 1 second since the last shot
+        current_time = time.time()
+        if current_time - self.last_shot_time >= 1:
+            self.last_shot_time = current_time
+            self.__shoot_ball()
+
+        # Move the existing ball towards its destination
+        if self.__ball is not None and self.__ball.isvisible():
+            self.__ball.forward(self.ball_speed)
+
+            # Check if the ball hits the player
+            if self.__ball.distance(self.game.player.x, self.game.player.y) < self.size:
+                self.game.game_over_lose()
+                self.__ball.hideturtle()  # Hide the ball when the game is over
+
+    def __shoot_ball(self) -> None:
+        x_cor = self.game.player.x
+        y_cor = self.game.player.y
+        if self.__ball is not None:
+            self.__ball.hideturtle()
+        self.__ball = RawTurtle(self.canvas)
+        self.__ball.penup()
+        self.__ball.color('red')
+        self.__ball.shape('circle')
+        self.__ball.shapesize(0.5)
+        self.__ball.goto(self.x, self.y)
+        self.__ball.setheading(self.__ball.towards(x_cor, y_cor))
+
+    def render(self) -> None:
+        self.canvas.coords(self.__id,
+                           self.x,
+                           self.y,
+                           self.x+self.size,
+                           self.y+self.size)
+
+    def delete(self):
+        self.canvas.delete(self.__id)
+
+
 # TODO
 # Complete the EnemyGenerator class by inserting code to generate enemies
 # based on the given game level; call TurtleAdventureGame's add_enemy() method
@@ -540,8 +593,10 @@ class EnemyGenerator:
 
         # example
         self.__game.after(100, self.create_fencing)
-        self.__game.after(100, self.create_ceptipede)
+        self.__game.after(100, self.create_centipede)
         self.__game.after(100, self.create_randomWalkenemy)
+        for i in range(5):
+            self.__game.after(100, self.create_ShootingEnemy)
         for i in range(1000, 100000, 1000):
             self.__game.after(i, self.create_randomWalkenemy)
         for i in range(1000, 10000, 1000):
@@ -582,10 +637,16 @@ class EnemyGenerator:
             new_enemy.spawnOpt = i
             self.__game.add_enemy(new_enemy)
 
-    def create_ceptipede(self):
+    def create_centipede(self):
         new_enemy = CentipedeEnemy(self.__game, 10, 'yellow')
         new_enemy.x = random.randint(75,600)
         new_enemy.y = random.randint(0,500)
+        self.__game.add_enemy(new_enemy)
+
+    def create_ShootingEnemy(self):
+        new_enemy = ShootingEnemy(self.__game, 10, 'brown', 10)
+        new_enemy.x = random.randint(0, 700)
+        new_enemy.y = random.randint(0, 400)
         self.__game.add_enemy(new_enemy)
 
 
